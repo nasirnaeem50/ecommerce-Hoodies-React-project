@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { CartContext } from '../context/CartContext';
 import { Link } from 'react-router-dom';
-import bgimg from "../assets/images/header2.jpeg";
+
 
 const Cart = ({ onClose }) => {
   const {
@@ -29,7 +29,7 @@ const Cart = ({ onClose }) => {
               Limited-time offers. Don’t miss out!
             </p>
             <img
-              src={bgimg}
+              src="/assets/images/header2.jpeg"
               alt="Hoodie promotion"
               className="h-96 w-auto object-cover rounded-lg shadow-lg"
             />

@@ -2,17 +2,6 @@ import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import ProductCard from "../components/ProductCard";
 import { ProductContext } from "../context/ProductContext";
-
-// Import all images from assets
-import HeroImage from "../assets/images/hero.jpeg";
-import SeasonalImage from "../assets/images/h2.jpeg";
-import Customer1 from "../assets/images/person-01.jpg";
-import Customer2 from "../assets/images/person-06.jpg";
-import Customer3 from "../assets/images/person-07.jpg";
-import SpecialOfferImage from "../assets/images/special.webp";
-import CarouselImage1 from "../assets/images/h14.jpg";
-import CarouselImage2 from "../assets/images/h15.jpg";
-import CarouselImage3 from "../assets/images/h16.jpg";
 import { useEffect } from "react";
 
 const Home = () => {
@@ -29,20 +18,12 @@ const Home = () => {
     }, 50);
     return () => clearInterval(interval);
   }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentCarouselIndex((prev) => (prev === 2 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
-
-  // Handle navbar scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleOfferSubmit = (e) => {
@@ -57,14 +38,17 @@ const Home = () => {
   };
 
   const discountedProducts = products.filter((product) => product.discount > 0);
-  const carouselImages = [CarouselImage1, CarouselImage2, CarouselImage3];
+  const carouselImages = [
+    "/assets/images/h14.jpg",
+    "/assets/images/h15.jpg",
+    "/assets/images/h16.jpg"
+  ];
+  
   const carouselTitles = [
     "New Collection Launch",
     "Limited Edition Colors",
     "Exclusive Member Discounts",
   ];
-
-  // Filter products with discount for special offers section
 
   return (
     <div className="overflow-hidden">
@@ -98,7 +82,7 @@ const Home = () => {
           <div className="md:w-[40%] flex justify-center">
             <div className="w-full max-w-md aspect-square rounded-full overflow-hidden border-8 border-white shadow-xl">
               <img
-                src={HeroImage}
+                src="/assets/images/hero.jpeg"
                 alt="Premium Hoodie Collection"
                 className="w-full h-[540px] object-cover hover:scale-105 transition duration-500"
               />
@@ -106,8 +90,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Carousel Section */}
       <div className="relative w-full h-screen max-h-[800px] min-h-[500px] overflow-hidden">
-        {/* Beautiful animated gradient background */}
         <div
           className="absolute inset-0 z-0"
           style={{
@@ -125,7 +110,6 @@ const Home = () => {
               index === currentCarouselIndex ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* Image container with proper aspect ratio */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative w-full h-full">
                 <img
@@ -145,10 +129,8 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Gradient overlay for better text visibility */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10"></div>
 
-            {/* Content overlay */}
             <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
               <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
                 {carouselTitles[index]}
@@ -163,7 +145,6 @@ const Home = () => {
           </div>
         ))}
 
-        {/* Navigation dots */}
         <div className="absolute bottom-8 left-0 right-0 flex justify-center space-x-3 z-20">
           {carouselImages.map((_, index) => (
             <button
@@ -257,7 +238,7 @@ const Home = () => {
           <div className="md:w-1/2 flex justify-center order-1 md:order-2">
             <div className="w-full max-w-md aspect-square rounded-2xl overflow-hidden border-8 border-white shadow-xl">
               <img
-                src={SeasonalImage}
+                src="/assets/images/h2.jpeg"
                 alt="Seasonal Collection"
                 className="w-full h-full object-cover hover:scale-105 transition duration-500"
               />
@@ -297,18 +278,17 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                img: Customer1,
+                img: "/assets/images/person-01.jpg",
                 name: "Alex Johnson",
-                quote:
-                  "The quality exceeded my expectations. Will definitely buy again!",
+                quote: "The quality exceeded my expectations. Will definitely buy again!",
               },
               {
-                img: Customer2,
+                img: "/assets/images/person-06.jpg",
                 name: "Sarah Miller",
                 quote: "Most comfortable hoodie I've ever worn. Perfect fit!",
               },
               {
-                img: Customer3,
+                img: "/assets/images/person-07.jpg",
                 name: "Michael Chen",
                 quote: "Great customer service and fast shipping. 5 stars!",
               },
@@ -342,7 +322,7 @@ const Home = () => {
           <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-md w-full">
             <div className="relative">
               <img
-                src={SpecialOfferImage}
+                src="/assets/images/special.webp"
                 alt="Special Offer"
                 className="w-full h-48 object-cover"
               />

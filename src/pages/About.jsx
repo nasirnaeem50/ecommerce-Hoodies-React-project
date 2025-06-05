@@ -1,16 +1,11 @@
 import { Link } from 'react-router-dom';
-import person1 from "../assets/images/person-01.jpg";
-import person2 from "../assets/images/person-06.jpg";
-import person3 from "../assets/images/person-07.jpg";
-import teamImage from "../assets/images/orange.jpg"; 
-import qualityImage from "../assets/images/h5.jpeg"; 
 
 const About = () => {
   return (
     <div className="bg-gray-50">
       {/* Hero Section */}
-      <div className="relative  text-black">
-        <div className="absolute inset-0 "></div>
+      <div className="relative text-black">
+        <div className="absolute inset-0"></div>
         <div className="container mx-auto px-4 py-32 relative z-10 flex justify-center items-center flex-col">
           <h1 className="text-5xl font-bold mb-6">Our Story</h1>
           <p className="text-xl max-w-2xl">
@@ -25,8 +20,8 @@ const About = () => {
         <section className="flex flex-col lg:flex-row items-center gap-12 mb-20">
           <div className="lg:w-1/2">
             <img 
-              src={teamImage} 
-              alt="Hodies team" 
+              src="/assets/images/orange.jpg" 
+              alt="Hoodies team" 
               className="rounded-lg shadow-xl w-full h-auto"
             />
           </div>
@@ -46,7 +41,7 @@ const About = () => {
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:w-1/3">
               <img 
-                src={qualityImage} 
+                src="/assets/images/h5.jpeg" 
                 alt="Premium quality materials" 
                 className="rounded-lg w-full h-auto"
               />
@@ -88,9 +83,24 @@ const About = () => {
           <h2 className="text-3xl font-bold text-center mb-12">What Our Community Says</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { img: person1, name: "Asad Khan", quote: "The quality of Hodies products is unmatched. I've had my hoodie for over a year and it still looks brand new!", role: "Loyal Customer" },
-              { img: person2, name: "Abdullah", quote: "Great customer service and fast shipping. Will definitely be ordering again soon!", role: "Frequent Shopper" },
-              { img: person3, name: "Anna", quote: "So comfortable and stylish. I get compliments every time I wear my Hodies hoodie!", role: "Fashion Blogger" }
+              { 
+                img: "/assets/images/person-01.jpg", 
+                name: "Asad Khan", 
+                quote: "The quality of Hodies products is unmatched. I've had my hoodie for over a year and it still looks brand new!", 
+                role: "Loyal Customer" 
+              },
+              { 
+                img: "/assets/images/person-06.jpg", 
+                name: "Abdullah", 
+                quote: "Great customer service and fast shipping. Will definitely be ordering again soon!", 
+                role: "Frequent Shopper" 
+              },
+              { 
+                img: "/assets/images/person-07.jpg", 
+                name: "Anna", 
+                quote: "So comfortable and stylish. I get compliments every time I wear my Hodies hoodie!", 
+                role: "Fashion Blogger" 
+              }
             ].map((person, index) => (
               <div key={index} className="bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow">
                 <div className="flex items-center mb-6">
@@ -122,9 +132,9 @@ const About = () => {
             Experience comfort redefined with our premium hoodie collection
           </p>
           <Link to="/products">
-          <button className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition">
-            Shop Now
-          </button>
+            <button className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition">
+              Shop Now
+            </button>
           </Link>
         </section>
       </div>

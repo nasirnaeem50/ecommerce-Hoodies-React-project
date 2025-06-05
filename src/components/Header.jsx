@@ -5,7 +5,7 @@ import { CartContext } from "../context/CartContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cart from "./Cart";
-import logo from "../assets/images/hicon.png";
+
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -46,7 +46,7 @@ const Header = () => {
           className="flex items-center space-x-1"
           onClick={closeAllMenus}
         >
-          <img src={logo} alt="" className="w-8 sm:w-10" />
+          <img src="/assets/images/hicon.png" alt="" className="w-8 sm:w-10" />
           <h3 className="text-xl font-bold tracking-tight hidden sm:inline bg-gradient-to-r from-blue-400 via-purple-500 to-red-600 bg-clip-text text-transparent">
             HOOD.IES
           </h3>
