@@ -1,9 +1,24 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    // Load cart from localStorage if available
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  const [checkoutInfo, setCheckoutInfo] = useState({
+    shippingAddress: null,
+    billingAddress: null,
+    paymentMethod: null,
+  });
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
@@ -39,6 +54,40 @@ export const CartProvider = ({ children }) => {
     0
   );
 
+  const itemCount = cartItems.reduce(
+    (count, item) => count + item.quantity,
+    0
+  );
+
+  const updateCheckoutInfo = (info) => {
+    setCheckoutInfo(prev => ({
+      ...prev,
+      ...info
+    }));
+  };
+
+  const completeCheckout = () => {
+    // Here you would typically send the order to your backend
+    const order = {
+      items: cartItems,
+      total: cartTotal,
+      ...checkoutInfo,
+      date: new Date().toISOString()
+    };
+    
+    // Clear cart after successful checkout
+    clearCart();
+    
+    // Clear checkout info
+    setCheckoutInfo({
+      shippingAddress: null,
+      billingAddress: null,
+      paymentMethod: null,
+    });
+    
+    return order;
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -48,6 +97,10 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         clearCart,
         cartTotal,
+        itemCount,
+        checkoutInfo,
+        updateCheckoutInfo,
+        completeCheckout,
       }}
     >
       {children}

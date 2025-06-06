@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ProductContext = createContext();
@@ -102,19 +102,34 @@ const initialProducts = [
 
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState(() => {
-    // Load products from localStorage if available
     const savedProducts = localStorage.getItem('ecommerce_products');
     return savedProducts ? JSON.parse(savedProducts) : initialProducts;
+  });
+
+  const [wishlist, setWishlist] = useState(() => {
+    const savedWishlist = localStorage.getItem('ecommerce_wishlist');
+    return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
 
   const [activeCategory, setActiveCategory] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Save products to localStorage whenever they change
+  // Get unique categories from products
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set();
+    products.forEach(product => {
+      if (product.category) {
+        uniqueCategories.add(product.category);
+      }
+    });
+    return Array.from(uniqueCategories);
+  }, [products]);
+
   useEffect(() => {
     localStorage.setItem('ecommerce_products', JSON.stringify(products));
-  }, [products]);
+    localStorage.setItem('ecommerce_wishlist', JSON.stringify(wishlist));
+  }, [products, wishlist]);
 
   const addProduct = (newProduct) => {
     setIsLoading(true);
@@ -197,10 +212,22 @@ export const ProductProvider = ({ children }) => {
     );
   };
 
+  const addToWishlist = (product) => {
+    if (!wishlist.some(item => item.id === product.id)) {
+      setWishlist([...wishlist, product]);
+    }
+  };
+
+  const removeFromWishlist = (productId) => {
+    setWishlist(wishlist.filter(item => item.id !== productId));
+  };
+
   return (
     <ProductContext.Provider
       value={{
         products,
+        categories,
+        wishlist,
         activeCategory,
         setActiveCategory,
         isLoading,
@@ -213,6 +240,8 @@ export const ProductProvider = ({ children }) => {
         getFeaturedProducts,
         getDiscountedProducts,
         searchProducts,
+        addToWishlist,
+        removeFromWishlist,
         clearError: () => setError(null)
       }}
     >

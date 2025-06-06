@@ -4,14 +4,24 @@ import { ProductContext } from "../context/ProductContext";
 import { CartContext } from "../context/CartContext";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import ReviewForm from "../components/ReviewForm";
+import ReviewList from "../components/ReviewList";
+import QuantitySelector from "../components/QuantitySelector";
+import SizeSelector from "../components/SizeSelector";
+import ColorSelector from "../components/ColorSelector";
+import ShippingInfo from "../components/ShippingInfo";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { getProductById } = useContext(ProductContext);
+  const { getProductById, addReview } = useContext(ProductContext);
   const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [showReviews, setShowReviews] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -24,6 +34,13 @@ const ProductDetail = () => {
         }
 
         setProduct(foundProduct);
+        // Set default selections if available
+        if (foundProduct.sizes && foundProduct.sizes.length > 0) {
+          setSelectedSize(foundProduct.sizes[0]);
+        }
+        if (foundProduct.colors && foundProduct.colors.length > 0) {
+          setSelectedColor(foundProduct.colors[0]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -36,9 +53,29 @@ const ProductDetail = () => {
 
   const getImagePath = (img) => {
     if (!img) return "/assets/images/placeholder.jpg";
-    if (img.startsWith('http')) return img;
+    // If it's a data URL (from uploaded image) or absolute URL, use as is
+    if (img.startsWith('data:') || img.startsWith('http')) return img;
+    // If it's already a properly formatted path, use as is
     if (img.startsWith('/assets/')) return img;
+    // Default case for relative paths
     return `/assets/images/${img}`;
+  };
+
+  const handleAddToCart = () => {
+    const itemToAdd = {
+      ...product,
+      selectedSize,
+      selectedColor,
+      quantity
+    };
+    addToCart(itemToAdd);
+  };
+
+  const handleReviewSubmit = async (review) => {
+    await addReview(review);
+    // Refresh product to show new review
+    const updatedProduct = getProductById(id);
+    setProduct(updatedProduct);
   };
 
   if (loading) {
@@ -66,6 +103,11 @@ const ProductDetail = () => {
       </div>
     );
   }
+
+  // Calculate original price if there's a discount
+  const originalPrice = product.discount > 0 
+    ? (product.price / (1 - product.discount/100)).toFixed(2)
+    : null;
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -103,21 +145,21 @@ const ProductDetail = () => {
           <div className="border-b pb-4">
             <h1 className="text-3xl font-bold">{product.name}</h1>
             <div className="flex items-center justify-between mt-2">
-              <div>
+              <div className="flex items-center gap-2">
                 <p className="text-2xl text-blue-600 font-semibold">
                   ${product.price.toFixed(2)}
-                  {product.discount > 0 && (
-                    <span className="ml-2 text-sm text-red-500 line-through">
-                      ${(product.price / (1 - product.discount/100)).toFixed(2)}
-                    </span>
-                  )}
                 </p>
+                {product.discount > 0 && (
+                  <>
+                    <span className="text-sm text-red-500 line-through">
+                      ${originalPrice}
+                    </span>
+                    <span className="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                      {product.discount}% OFF
+                    </span>
+                  </>
+                )}
               </div>
-              {product.discount > 0 && (
-                <span className="bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded">
-                  {product.discount}% OFF
-                </span>
-              )}
             </div>
           </div>
 
@@ -153,36 +195,33 @@ const ProductDetail = () => {
           </div>
 
           {product.colors && (
-            <div>
-              <span className="text-sm text-gray-500 uppercase tracking-wide">Colors</span>
-              <div className="flex gap-2 mt-1">
-                {product.colors.map((color, i) => (
-                  <span 
-                    key={i}
-                    className="w-6 h-6 rounded-full border border-gray-200"
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
-              </div>
-            </div>
+            <ColorSelector 
+              colors={product.colors} 
+              selectedColor={selectedColor}
+              onSelect={setSelectedColor}
+            />
           )}
 
           {product.sizes && (
-            <div>
-              <span className="text-sm text-gray-500 uppercase tracking-wide">Sizes</span>
-              <div className="flex gap-2 mt-1 flex-wrap">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size} 
-                    className="px-3 py-1 border rounded text-sm hover:bg-gray-100 cursor-pointer"
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <SizeSelector 
+              sizes={product.sizes} 
+              selectedSize={selectedSize}
+              onSelect={setSelectedSize}
+            />
           )}
+
+          <div className="flex items-center gap-4">
+            <div>
+              <span className="text-sm text-gray-500 uppercase tracking-wide block mb-1">
+                Quantity
+              </span>
+              <QuantitySelector 
+                initialQuantity={1}
+                maxQuantity={Math.min(product.stock, 10)}
+                onChange={setQuantity}
+              />
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-4 pt-4">
             <div>
@@ -198,7 +237,7 @@ const ProductDetail = () => {
           {/* Action Buttons */}
           <div className="flex gap-4 pt-6">
             <button
-              onClick={() => addToCart(product)}
+              onClick={handleAddToCart}
               disabled={product.stock === 0}
               className={`flex-1 px-6 py-3 rounded-lg text-white font-medium transition-colors ${
                 product.stock === 0
@@ -211,7 +250,7 @@ const ProductDetail = () => {
 
             <Link
               to="/checkout"
-              state={{ product }}
+              state={{ product: {...product, selectedSize, selectedColor, quantity} }}
               className={`flex-1 px-6 py-3 rounded-lg text-white font-bold text-center transition-colors ${
                 product.stock === 0
                   ? "bg-gray-400 cursor-not-allowed"
@@ -223,7 +262,15 @@ const ProductDetail = () => {
               {product.stock === 0 ? "Out of Stock" : "Buy Now"}
             </Link>
           </div>
+
+          <ShippingInfo />
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-12 grid md:grid-cols-2 gap-8">
+        <ReviewList />
+        <ReviewForm onSubmit={handleReviewSubmit} />
       </div>
     </div>
   );

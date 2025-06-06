@@ -1,18 +1,40 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useState, useEffect, useCallback, useContext } from 'react';
 
+// Create context
 export const AuthContext = createContext();
+
+// Custom hook for consuming context
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 // Mock database for user storage
 const mockUsersDB = [
-  { email: 'nasirnaeem66@gmail.com', name: 'Admin', password: '123456', isAdmin: true },
-  { email: 'user@example.com', name: 'Regular User', password: 'user123', isAdmin: false }
+  { 
+    email: 'nasirnaeem66@gmail.com', 
+    name: 'Admin', 
+    password: '123456', 
+    isAdmin: true,
+    id: '1'
+  },
+  { 
+    email: 'user@example.com', 
+    name: 'Regular User', 
+    password: 'user123', 
+    isAdmin: false,
+    id: '2'
+  }
 ];
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authError, setAuthError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with true for initial check
 
   // Simulate API call delay
   const simulateAPICall = async () => {
@@ -34,11 +56,15 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Invalid email or password');
       }
 
-      const userData = { email: foundUser.email, name: foundUser.name };
+      const userData = { 
+        email: foundUser.email, 
+        name: foundUser.name,
+        id: foundUser.id
+      };
+      
       setUser(userData);
       setIsAdmin(foundUser.isAdmin);
       
-      // Store in localStorage for persistence
       localStorage.setItem('authUser', JSON.stringify({
         user: userData,
         isAdmin: foundUser.isAdmin
@@ -60,7 +86,6 @@ export const AuthProvider = ({ children }) => {
     try {
       await simulateAPICall();
 
-      // Validation checks
       if (!email || !password || !name) {
         throw new Error('All fields are required');
       }
@@ -74,18 +99,16 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Email already registered');
       }
 
-      // In a real app, you would hash the password before storing
       const newUser = {
         email,
         name,
         password,
-        isAdmin: false
+        isAdmin: false,
+        id: String(mockUsersDB.length + 1)
       };
 
-      // Add to mock database
       mockUsersDB.push(newUser);
 
-      // Return success without logging in automatically
       return true;
     } catch (error) {
       setAuthError(error.message);
@@ -99,20 +122,27 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAdmin(false);
     localStorage.removeItem('authUser');
-    window.location.reload(); // Add this to ensure all components update
   }, []);
 
-  // Check for existing session on initial load
+  // Check for existing session
   const checkExistingSession = useCallback(() => {
-    const storedAuth = localStorage.getItem('authUser');
-    if (storedAuth) {
-      const { user, isAdmin } = JSON.parse(storedAuth);
-      setUser(user);
-      setIsAdmin(isAdmin);
+    setIsLoading(true);
+    try {
+      const storedAuth = localStorage.getItem('authUser');
+      if (storedAuth) {
+        const { user, isAdmin } = JSON.parse(storedAuth);
+        setUser(user);
+        setIsAdmin(isAdmin);
+      }
+    } catch (error) {
+      console.error('Failed to parse auth data', error);
+      localStorage.removeItem('authUser');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  // Initialize auth check on component mount
+  // Initialize auth check
   useEffect(() => {
     checkExistingSession();
   }, [checkExistingSession]);

@@ -2,25 +2,31 @@ import { useState, useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
+import { ProductContext } from "../context/ProductContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cart from "./Cart";
-
+import SearchBar from "./SearchBar";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { user, isAdmin, logout } = useContext(AuthContext);
   const { cartItems } = useContext(CartContext);
+  const { wishlist } = useContext(ProductContext);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleCart = () => setIsCartOpen(!isCartOpen);
   const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
+  const toggleMobileSearch = () => setMobileSearchOpen(!mobileSearchOpen);
 
   const closeAllMenus = () => {
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
+    setMobileSearchOpen(false);
   };
 
   const handleLogout = () => {
@@ -36,6 +42,14 @@ const Header = () => {
     });
     closeAllMenus();
   };
+
+  const navLinks = [
+    { to: "/", text: "Home" },
+    { to: "/products", text: "Products" },
+    { to: "/about", text: "About Us" },
+    { to: "/contact", text: "Contact" },
+    { to: "/track-order", text: "Track Order" }, // Added Track Order link
+  ];
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
@@ -53,77 +67,32 @@ const Header = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-2">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `px-4 py-2 text-sm font-semibold rounded-md transition-all duration-300 ease-in-out transform
-      ${
-        isActive
-          ? "bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow-md"
-          : "text-gray-600 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:text-white hover:scale-105"
-      }`
-            }
-            onClick={closeAllMenus}
-          >
-            Home
-          </NavLink>
-
-          <NavLink
-            to="/products"
-            className={({ isActive }) =>
-              `px-4 py-2 text-sm font-semibold rounded-md transition-all duration-300 ease-in-out transform
-      ${
-        isActive
-          ? "bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow-md"
-          : "text-gray-600 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:text-white hover:scale-105"
-      }`
-            }
-            onClick={closeAllMenus}
-          >
-            Products
-          </NavLink>
-
-          <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              `px-4 py-2 text-sm font-semibold rounded-md transition-all duration-300 ease-in-out transform
-      ${
-        isActive
-          ? "bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow-md"
-          : "text-gray-600 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:text-white hover:scale-105"
-      }`
-            }
-            onClick={closeAllMenus}
-          >
-            About Us
-          </NavLink>
-
-          <NavLink
-            to="/contact"
-            className={({ isActive }) =>
-              `px-4 py-2 text-sm font-semibold rounded-md transition-all duration-300 ease-in-out transform
-      ${
-        isActive
-          ? "bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow-md"
-          : "text-gray-600 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:text-white hover:scale-105"
-      }`
-            }
-            onClick={closeAllMenus}
-          >
-            Contact
-          </NavLink>
-
+        <nav className="hidden md:flex space-x-6 mx-6">
+          {navLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) =>
+                `px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "text-blue-600 border-b-2 border-blue-500"
+                    : "text-gray-600 hover:text-blue-500"
+                }`
+              }
+              onClick={closeAllMenus}
+            >
+              {link.text}
+            </NavLink>
+          ))}
           {isAdmin && (
             <NavLink
               to="/admin"
               className={({ isActive }) =>
-                `px-4 py-2 text-sm font-semibold rounded-md transition-all duration-300 ease-in-out transform
-        ${
-          isActive
-            ? "bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow-md"
-            : "text-gray-600 hover:bg-gradient-to-r hover:from-blue-400 hover:to-purple-500 hover:text-white hover:scale-105"
-        }`
+                `px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "text-purple-600 border-b-2 border-purple-500"
+                    : "text-gray-600 hover:text-purple-500"
+                }`
               }
               onClick={closeAllMenus}
             >
@@ -132,8 +101,47 @@ const Header = () => {
           )}
         </nav>
 
+        {/* Desktop Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4">
+          <SearchBar />
+        </div>
+
         {/* Right Side Actions */}
         <div className="flex items-center space-x-4">
+          {/* Mobile Search Button */}
+          <button
+            onClick={toggleMobileSearch}
+            className="md:hidden p-2 text-gray-600 hover:text-white rounded-full hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-110 shadow-sm"
+            aria-label="Search"
+          >
+            <MagnifyingGlassIcon className="h-6 w-6" />
+          </button>
+
+          {/* Wishlist Button */}
+          <Link 
+            to="/wishlist" 
+            className="p-2 text-gray-600 hover:text-white rounded-full hover:bg-gradient-to-r hover:from-pink-500 hover:to-red-500 transition-all duration-300 transform hover:scale-110 shadow-sm relative"
+            aria-label="Wishlist"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {wishlist.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md animate-bounce">
+                {wishlist.length}
+              </span>
+            )}
+          </Link>
+
           {/* Cart Button */}
           <button
             onClick={toggleCart}
@@ -203,6 +211,13 @@ const Header = () => {
                     onClick={closeAllMenus}
                   >
                     My Profile
+                  </Link>
+                  <Link
+                    to="/wishlist"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 hover:text-blue-700 transition-all"
+                    onClick={closeAllMenus}
+                  >
+                    My Wishlist
                   </Link>
                   <Link
                     to="/orders"
@@ -290,42 +305,67 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Mobile Search Bar */}
+      {mobileSearchOpen && (
+        <div className="md:hidden bg-white px-4 py-2 border-t border-gray-100">
+          <SearchBar />
+        </div>
+      )}
+
       {/* Mobile menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white shadow-lg animate-slideDown">
           <div className="container mx-auto px-4 py-2 flex flex-col space-y-1">
-            <NavLink
-              to="/"
-              className="px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  `px-4 py-3 text-gray-700 rounded-md transition-colors ${
+                    isActive
+                      ? "text-blue-600 bg-blue-50"
+                      : "hover:text-blue-600 hover:bg-blue-50"
+                  }`
+                }
+                onClick={closeAllMenus}
+              >
+                {link.text}
+              </NavLink>
+            ))}
+            <Link
+              to="/wishlist"
+              className="px-4 py-3 text-gray-700 rounded-md transition-colors hover:text-pink-600 hover:bg-pink-50 flex items-center gap-2"
               onClick={closeAllMenus}
             >
-              Home
-            </NavLink>
-            <NavLink
-              to="/products"
-              className="px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-              onClick={closeAllMenus}
-            >
-              Products
-            </NavLink>
-            <NavLink
-              to="/about"
-              className="px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-              onClick={closeAllMenus}
-            >
-              About Us
-            </NavLink>
-            <NavLink
-              to="/contact"
-              className="px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-              onClick={closeAllMenus}
-            >
-              Contact
-            </NavLink>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Wishlist
+              {wishlist.length > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlist.length}
+                </span>
+              )}
+            </Link>
             {isAdmin && (
               <NavLink
                 to="/admin"
-                className="px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                className={({ isActive }) =>
+                  `px-4 py-3 text-gray-700 rounded-md transition-colors ${
+                    isActive
+                      ? "text-purple-600 bg-purple-50"
+                      : "hover:text-purple-600 hover:bg-purple-50"
+                  }`
+                }
                 onClick={closeAllMenus}
               >
                 Admin Panel

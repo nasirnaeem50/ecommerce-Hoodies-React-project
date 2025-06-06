@@ -178,8 +178,8 @@ const Home = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {discountedProducts.slice(0, 3).map((product) => (
                 <div key={product.id} className="relative group">
-                  <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold z-10">
-                    {product.discount}% OFF
+                  <div>
+                   
                   </div>
                   <ProductCard product={product} />
                 </div>
