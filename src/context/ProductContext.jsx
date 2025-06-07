@@ -97,7 +97,8 @@ const initialProducts = [
     dimensions: "29x39 inches",
     sku: "HOOD-WHT-005",
     reviewsCount: 21
-  }
+  },
+  
 ];
 
 export const ProductProvider = ({ children }) => {

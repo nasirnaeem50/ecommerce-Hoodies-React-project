@@ -41,9 +41,9 @@ const Home = () => {
   const carouselImages = [
     "/assets/images/h14.jpg",
     "/assets/images/h15.jpg",
-    "/assets/images/h16.jpg"
+    "/assets/images/h16.jpg",
   ];
-  
+
   const carouselTitles = [
     "New Collection Launch",
     "Limited Edition Colors",
@@ -79,12 +79,12 @@ const Home = () => {
               </button>
             </div>
           </div>
-          <div className="md:w-[40%] flex justify-center">
-            <div className="w-full max-w-md aspect-square rounded-full overflow-hidden border-8 border-white shadow-xl">
+          <div className="w-full md:w-[40%] flex justify-center">
+            <div className="w-[250px] md:w-full max-w-md aspect-square rounded-full overflow-hidden border-8 border-white shadow-xl">
               <img
                 src="/assets/images/hero.jpeg"
                 alt="Premium Hoodie Collection"
-                className="w-full h-[540px] object-cover hover:scale-105 transition duration-500"
+                className="w-full h-[250px] md:h-[540px] object-cover hover:scale-105 transition duration-500"
               />
             </div>
           </div>
@@ -178,9 +178,7 @@ const Home = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {discountedProducts.slice(0, 3).map((product) => (
                 <div key={product.id} className="relative group">
-                  <div>
-                   
-                  </div>
+                  <div></div>
                   <ProductCard product={product} />
                 </div>
               ))}
@@ -280,7 +278,8 @@ const Home = () => {
               {
                 img: "/assets/images/person-01.jpg",
                 name: "Alex Johnson",
-                quote: "The quality exceeded my expectations. Will definitely buy again!",
+                quote:
+                  "The quality exceeded my expectations. Will definitely buy again!",
               },
               {
                 img: "/assets/images/person-06.jpg",

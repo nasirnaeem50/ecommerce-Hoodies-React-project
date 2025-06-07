@@ -7,6 +7,7 @@ const CategoryFilter = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const allCategories = ['all', ...categories];
 
@@ -14,7 +15,16 @@ const CategoryFilter = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const urlCategory = searchParams.get('category');
-    if (urlCategory && allCategories.includes(urlCategory)) {
+    
+    if (isInitialLoad) {
+      // On first load, set category to 'all' if no category is specified
+      if (!urlCategory || !allCategories.includes(urlCategory)) {
+        handleCategoryChange('all');
+      } else if (urlCategory && allCategories.includes(urlCategory)) {
+        setActiveCategory(urlCategory);
+      }
+      setIsInitialLoad(false);
+    } else if (urlCategory && allCategories.includes(urlCategory)) {
       setActiveCategory(urlCategory);
     }
   }, [location.search]);
@@ -37,7 +47,7 @@ const CategoryFilter = () => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       {/* Mobile Header */}
       <div 
-        className="md:hidden flex justify-between items-center p-4 cursor-pointer"
+        className="md:hidden flex justify-between items-center p-4 cursor-pointer bg-gray-50"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
         <h3 className="font-bold text-lg text-gray-800 flex items-center">
@@ -53,7 +63,7 @@ const CategoryFilter = () => {
               clipRule="evenodd" 
             />
           </svg>
-          Categories
+          {activeCategory === 'all' ? 'All Products' : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1)}
         </h3>
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -70,7 +80,7 @@ const CategoryFilter = () => {
       </div>
 
       {/* Categories List */}
-      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:block`}>
+      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:block transition-all duration-300`}>
         <div className="p-4 pt-0 md:pt-4 border-t md:border-t-0">
           <h3 className="hidden md:block font-bold text-lg mb-4 text-gray-800 border-b pb-2">
             Categories
